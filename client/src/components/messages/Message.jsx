@@ -1,18 +1,35 @@
-const Message = () => {
+import { useAuthContext } from "../../context/AuthContext";
+import useConversation from "../../store/useConversation";
+import extractTime from "../../utils/extractTime";
+
+const Message = ({ message }) => {
+  const { authUser } = useAuthContext();
+  const { selectedConversation } = useConversation();
+
+  const fromMe = message.senderId === authUser._id;
+  const messageClass = fromMe ? "chat-end" : "chat-start";
+  const profilePic = fromMe
+    ? authUser.profilePic
+    : selectedConversation.profilePic;
+  const bubbleColor = fromMe
+    ? "bg-slate-200 text-slate-800"
+    : "bg-blue-400 text-slate-50";
+  const shakeClass = message.shouldShake ? "shake" : "";
+  console.log(message);
+
   return (
-    <div className="chat chat-end">
+    <div className={`chat ${messageClass}`}>
       <div className="chat-image avatar">
         <div className="w-10 rounded-full">
-          <img
-            src="https://api.dicebear.com/7.x/lorelei/svg"
-            alt="Tailwind CSS Chat Bubble Component"
-          />
+          <div dangerouslySetInnerHTML={{ __html: profilePic }} />
         </div>
       </div>
-      <div className="chat-bubble text-white bg-blue-300">
-        Hello, how are you?
+      <div className={`chat-bubble ${bubbleColor} ${shakeClass}`}>
+        {message.message}
       </div>
-      <div className="chat-footer opacity-50">11:38</div>
+      <div className="chat-footer text-slate-700 opacity-80 text-xs my-1">
+        {extractTime(message.createdAt)}
+      </div>
     </div>
   );
 };
